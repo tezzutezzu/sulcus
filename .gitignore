@@ -1,0 +1,16 @@
+# Dependencies
+node_modules/
+
+# macOS
+.DS_Store
+
+# Local test output
+*.log
+
+# Working media in studio/ (kept on disk, not in history).
+# Remove a line when you want that artefact tracked.
+studio/old/
+studio/folder/
+studio/generated/*.stl
+studio/generated/*.svg
+*.stl

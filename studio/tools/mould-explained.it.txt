@@ -1,0 +1,183 @@
+CONTROFORMA PER ANELLO - POSITIVO IN PLA, CALCO IN GESSO, ARGILLA
+==================================================================
+
+Questa guida descrive il processo scelto:
+
+  1. stampare il positivo dell'anello in PLA;
+  2. colare il gesso attorno al positivo;
+  3. estrarre il positivo e usare la controforma di gesso per l'argilla.
+
+Il sito esporta due file:
+
+  - landscape.stl: il positivo dell'anello, quello da stampare in PLA;
+  - mould.stl: il negativo pronto per la stampa diretta in TPU, un percorso
+    alternativo che non serve per il gesso.
+
+Il principio e' semplice: il gesso copia il positivo e ne prende il negativo.
+La cavita' che si forma nel gesso e' la stessa che il programma calcola per
+mould.stl, ma ottenuta per colata invece che per stampa.
+
+
+1. COSA STAMPARE
+----------------
+
+Nella scheda Generate imposta:
+
+  Relief          14 mm
+  Base            3 mm
+  Diameter        160 mm
+  Inner diameter  40 mm
+  Arc             330 deg
+
+Poi premi Generate e scarica landscape.stl.
+
+Il gruppo "Clay mould" (Mould relief, Slope limit, Mould scale, Back)
+riguarda solo mould.stl, il negativo per il TPU. Per il percorso in gesso
+non serve.
+
+Stampa landscape.stl in PLA con la base piatta sul piano di stampa:
+
+  - layer 0,12-0,2 mm (0,16 va bene);
+  - 2-3 pareti e 10-15% di riempimento;
+  - nessun supporto;
+  - la superficie del rilievo e' quella che conta: se puoi, usa 0,12 mm.
+
+Il positivo e' alto al massimo 17 mm (3 mm di base + 14 mm di rilievo).
+
+
+2. PREPARARE IL POSITIVO
+------------------------
+
+Prima di colare il gesso:
+
+  - carteggia le righe di stampa, soprattutto sul rilievo e sulle pareti
+    laterali (grana 400-600);
+  - dai una spoglia di 2-3 gradi alle pareti esterna, interna e ai due lati
+    dell'apertura. Le pareti nascono verticali: su 17 mm, 2-3 gradi sono
+    circa 0,6-0,9 mm. Puoi carteggiarle con un blocchetto inclinato, oppure
+    limarle a mano seguendo un riferimento;
+  - sigilla la superficie con un primer o uno stucco sottile. Il PLA e' gia'
+    resistente all'acqua, ma una superficie chiusa aiuta il distacco;
+  - applica un distaccante sottile: una soluzione saponosa o un velo di PVA.
+    Evita oli e silicone, che possono chiudere i pori del gesso o macchiare
+    l'argilla.
+
+La spoglia e' importante perche' il gesso e il PLA sono entrambi rigidi.
+L'apertura di 30 gradi aiuta a muovere il pezzo, ma non sostituisce la
+spoglia.
+
+
+3. COLARE IL GESSO
+------------------
+
+Prepara una scatola con:
+
+  - impronta: diametro esterno dell'anello + 25 mm per lato
+    (per 160 mm: circa 210 x 210 mm);
+  - altezza: rilievo massimo + 25 mm (circa 42 mm).
+
+Appoggia il positivo DENTRO la scatola con la base piatta sul fondo e il
+rilievo rivolto verso l'alto. Il fondo deve essere piano e sigillato.
+
+Usa gesso da formatura (gesso per stampi, pottery plaster o hydrocal), non
+il gesso da muro. Segui il rapporto del produttore; in genere sono 100 parti
+di gesso e 70-80 parti di acqua in peso.
+
+  - versa il gesso nell'acqua, non il contrario;
+  - lascia riposare 1-2 minuti;
+  - mescola 2-3 minuti, lentamente, senza inglobare aria;
+  - cola da un solo angolo, in un filo continuo;
+  - batti leggermente la scatola per far salire le bolle.
+
+Cola fino a coprire il rilievo con 20-25 mm di gesso.
+
+La presa richiede circa 20-40 minuti. Togli la scatola e il fondo dopo
+45-60 minuti, mentre il gesso e' ancora leggermente caldo.
+
+A questo punto il positivo va estratto verso il basso: la base piatta e'
+appoggiata sul fondo, il gesso lo circonda e il rilievo e' annegato nel
+gesso. Tira il positivo verso il basso, senza fare leva sui bordi della
+cavita'. Se resiste, picchietta delicatamente la scatola.
+
+Capovolgi il blocco: la cavita' ora e' rivolta verso l'alto.
+
+
+4. ASCIUGATURA E USO
+--------------------
+
+Il gesso umido non assorbe e l'argilla si attacca. Lascia asciugare:
+
+  - 2-7 giorni all'aria, oppure
+  - 24 ore a circa 50 gradi.
+
+Quando e' asciutto, la controforma e' pronta. Premi l'argilla nella cavita',
+rasa l'eccesso a filo del bordo e lascia assestare il pezzo prima di
+estrarlo. Il gesso poroso assorbe l'acqua e favorisce il distacco; per
+l'argilla non serve nessun distaccante.
+
+Non immergere la controforma in acqua e non lavarla sotto il rubinetto.
+Ripara le scheggiature con gesso fresco.
+
+
+5. PERCHE' FUNZIONA
+-------------------
+
+L'anello e' un solido descritto da un campo di altezze:
+
+  - la base e' piatta;
+  - la superficie superiore ha una sola quota per ogni punto;
+  - le pareti sono verticali.
+
+Non ci sono sottosquadri, quindi il positivo puo' uscire dal gesso tirandolo
+verso il basso dopo avergli dato la spoglia. La cavita' del gesso e' il
+negativo della superficie: dove l'anello e' alto, il gesso ha una tasca
+profonda; dove e' piatto, una tasca poco profonda.
+
+Il programma applica al negativo per TPU anche un limite di pendenza di
+60 gradi, per non creare fessure troppo strette. Il positivo in PLA usa la
+superficie originale ridotta a 14 mm: se qualche cresta e' molto ripida,
+levigala a mano prima di colare il gesso.
+
+
+6. DIFFERENZE RISPETTO AL TPU
+-----------------------------
+
+  - Il gesso e' poroso, rigido, economico e lascia staccare bene l'argilla.
+  - Il gesso e' fragile: servono pareti da 20-25 mm e, se vuoi, una retina
+    di fibra di vetro o una scatola rigida come supporto.
+  - Il gesso richiede spoglia e asciugatura; il TPU no, ma stampa lentamente
+    e rilascia peggio.
+  - Il peso: un blocco da 210 x 210 x 42 mm pesa qualche chilogrammo. Va
+    bene per un uso a banco, ma non e' un oggetto da spostare spesso.
+
+
+7. PARAMETRI UTILI
+------------------
+
+  Diametro esterno        160 mm
+  Diametro interno        40 mm
+  Arco                    330 gradi
+  Base                    3 mm
+  Rilievo                 14 mm (massimo 17 mm con la base)
+  Spoglia                 2-3 gradi
+  Gesso dietro il rilievo 20-25 mm
+  Pareti del gesso        20-25 mm
+  Rapporto gesso/acqua    100 : 70-80 in peso
+  Presa                   20-40 minuti
+  Asciugatura             2-7 giorni, o 24 ore a 50 gradi
+  Argilla (piena)         circa 335 g a 1,8 g/cm3
+
+Il ritiro dell'argilla in asciugatura e cottura e' circa il 5-10%: non e'
+compensato nella forma. Se ti serve la misura finale esatta, ingrandisci il
+modello o accetta il ritiro.
+
+
+8. FILE E COMANDI
+-----------------
+
+  landscape.stl   positivo da stampare in PLA (questo percorso)
+  mould.stl       negativo per la stampa diretta in TPU (percorso alternativo)
+  npm run mould   genera il negativo offline in generated/mould-tpu.stl
+
+Le spiegazioni di come viene costruito il negativo restano valide: la
+cavita' del gesso e' la stessa geometria, ottenuta per colata.

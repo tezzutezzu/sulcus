@@ -1,0 +1,180 @@
+RING PRESS MOULD - PLA POSITIVE, PLASTER CAST, CLAY
+===================================================
+
+This guide describes the chosen process:
+
+  1. print the ring positive in PLA;
+  2. pour plaster around the positive;
+  3. remove the positive and use the plaster mould for clay.
+
+The site exports two files:
+
+  - landscape.stl: the ring positive, the file to print in PLA;
+  - mould.stl: the negative ready for direct TPU printing, an alternative
+    route that is not used for plaster.
+
+The principle is simple: the plaster copies the positive and takes its
+negative. The cavity formed in the plaster is the same one the program
+computes for mould.stl, obtained by casting instead of printing.
+
+
+1. WHAT TO PRINT
+----------------
+
+In the Generate tab set:
+
+  Relief          14 mm
+  Base            3 mm
+  Diameter        160 mm
+  Inner diameter  40 mm
+  Arc             330 deg
+
+Then press Generate and download landscape.stl.
+
+The "Clay mould" group (Mould relief, Slope limit, Mould scale, Back) only
+affects mould.stl, the TPU negative. It is not used for the plaster route.
+
+Print landscape.stl in PLA with the flat base on the build plate:
+
+  - 0.12-0.2 mm layers (0.16 is fine);
+  - 2-3 perimeters and 10-15% infill;
+  - no supports;
+  - the relief surface is what matters: use 0.12 mm if you can.
+
+The positive is at most 17 mm tall (3 mm base + 14 mm relief).
+
+
+2. PREPARE THE POSITIVE
+-----------------------
+
+Before pouring the plaster:
+
+  - sand the layer lines, especially on the relief and the side walls
+    (400-600 grit);
+  - add a 2-3 degree draft to the outer, inner and both end walls. The
+    walls are printed vertical: over 17 mm, 2-3 degrees is about
+    0.6-0.9 mm. Sand them with a tilted block, or file them by hand
+    against a reference;
+  - seal the surface with a primer or a thin filler. PLA is already
+    water-resistant, but a closed surface helps release;
+  - apply a thin release agent: a soap solution or a coat of PVA. Avoid
+    oils and silicone, which can clog the plaster pores or stain the clay.
+
+Draft matters because plaster and PLA are both rigid. The 30 degree gap
+helps move the part, but it does not replace draft.
+
+
+3. POUR THE PLASTER
+-------------------
+
+Build a box with:
+
+  - footprint: ring outside diameter + 25 mm per side
+    (for 160 mm: about 210 x 210 mm);
+  - height: tallest relief + 25 mm (about 42 mm).
+
+Place the positive INSIDE the box with the flat base on the bottom and the
+relief facing up. The bottom must be flat and sealed.
+
+Use mould-making plaster (pottery plaster, hydrocal or equivalent), not
+hardware-store wall plaster. Follow the manufacturer's ratio; typically
+100 parts plaster to 70-80 parts water by weight.
+
+  - sprinkle the plaster into the water, not the other way round;
+  - let it slake for 1-2 minutes;
+  - mix for 2-3 minutes, slowly, without whipping in air;
+  - pour from one corner in a continuous stream;
+  - tap the box gently to release bubbles.
+
+Pour until the plaster covers the relief by 20-25 mm.
+
+Setting takes about 20-40 minutes. Remove the box and the bottom after
+45-60 minutes, while the plaster is still slightly warm.
+
+Now pull the positive downwards: its flat base is against the bottom, the
+plaster surrounds it, and the relief is buried in the plaster. Pull the
+positive down without levering on the cavity edges. If it resists, tap the
+box gently.
+
+Turn the block over: the cavity now faces up.
+
+
+4. DRYING AND USE
+-----------------
+
+Wet plaster does not absorb water and the clay will stick. Let it dry:
+
+  - 2-7 days in air, or
+  - 24 hours at about 50 degrees.
+
+Once dry, the mould is ready. Press clay into the cavity, strike the excess
+off level with the rim, and let the piece firm up before demoulding. The
+porous plaster absorbs water and helps release; no release agent is needed
+for the clay.
+
+Do not soak the mould and do not wash it under the tap. Repair chips with
+fresh plaster.
+
+
+5. WHY IT WORKS
+---------------
+
+The ring is a heightfield solid:
+
+  - the base is flat;
+  - the top surface has a single height at every point;
+  - the walls are vertical.
+
+There are no undercuts, so the positive can leave the plaster by pulling it
+downwards once it has draft. The plaster cavity is the negative of the
+surface: where the ring is tall, the plaster has a deep pocket; where it is
+flat, a shallow pocket.
+
+For the TPU negative the program also caps the slope at 60 degrees, so the
+grooves do not become narrow slots. The PLA positive uses the original
+surface reduced to 14 mm: if a ridge is very steep, sand it by hand before
+pouring the plaster.
+
+
+6. DIFFERENCES FROM TPU
+-----------------------
+
+  - Plaster is porous, rigid, cheap and releases clay well.
+  - Plaster is brittle: use 20-25 mm walls and, if you like, a fibreglass
+    mesh or a rigid box as backing.
+  - Plaster needs draft and drying; TPU does not, but it prints slowly and
+    releases worse.
+  - Weight: a 210 x 210 x 42 mm block weighs a few kilograms. Fine for a
+    bench tool, not something to move often.
+
+
+7. USEFUL NUMBERS
+-----------------
+
+  Outside diameter        160 mm
+  Inside diameter         40 mm
+  Arc                     330 degrees
+  Base                    3 mm
+  Relief                  14 mm (17 mm maximum with the base)
+  Draft                   2-3 degrees
+  Plaster behind relief   20-25 mm
+  Plaster walls           20-25 mm
+  Plaster/water           100 : 70-80 by weight
+  Setting                 20-40 minutes
+  Drying                  2-7 days, or 24 hours at 50 degrees
+  Clay (solid)            about 335 g at 1.8 g/cm3
+
+Clay shrinkage during drying and firing is about 5-10%; it is not
+compensated in the mould. If you need the final size exactly, enlarge the
+model or accept the shrinkage.
+
+
+8. FILES AND COMMANDS
+---------------------
+
+  landscape.stl   positive to print in PLA (this route)
+  mould.stl       negative for direct TPU printing (alternative route)
+  npm run mould   writes the offline negative to generated/mould-tpu.stl
+
+The explanation of how the negative is built still holds: the plaster cavity
+is the same geometry, obtained by casting.

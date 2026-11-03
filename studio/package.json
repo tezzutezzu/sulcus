@@ -1,0 +1,9 @@
+{
+  "name": "acoustic-vase",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Room impulse response WAV to spectrogram and hollow STL vase",
+  "scripts": { "start": "node acoustic-vase.cjs", "mould": "node tools/make-mould.mjs" },
+  "dependencies": { "node-wav": "^0.0.2", "fft.js": "^4.0.4" }
+}

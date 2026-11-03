@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Live visualiser for an audio input: a ring whose ridges follow the sound in real time.">
+<meta name="theme-color" content="#111315">
+<title>Sound / Form — Live</title>
+<link rel="stylesheet" href="style.css">
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://unpkg.com/three@0.169.0/build/three.module.js",
+    "three/addons/": "https://unpkg.com/three@0.169.0/examples/jsm/"
+  }
+}
+</script>
+<script type="module" src="app.js"></script>
+</head>
+<body>
+<main class="live">
+  <div id="viewer" class="live-viewer" role="img" aria-keyshortcuts="T R A" aria-label="Live input relief: a ring whose ridges rise with the sound picked up from the selected source"></div>
+  <div class="live-controls">
+    <select id="live-source" class="live-select" aria-label="Audio source">
+      <option value="default">Default microphone</option>
+    </select>
+    <button id="live-toggle" class="play" type="button" aria-pressed="false">Start</button>
+    <select id="live-length" class="live-select" aria-label="History length">
+      <option value="5">5 s</option>
+      <option value="10">10 s</option>
+      <option value="15" selected>15 s</option>
+      <option value="20">20 s</option>
+      <option value="30">30 s</option>
+    </select>
+  </div>
+  <p id="live-status" class="sr-only" role="status" aria-live="polite">Press Start to visualise the input. T top view, R reset, A auto-orbit.</p>
+</main>
+</body>
+</html>

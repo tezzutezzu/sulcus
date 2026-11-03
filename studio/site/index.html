@@ -1,0 +1,298 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sound / Form</title>
+<link rel="stylesheet" href="style.css">
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://unpkg.com/three@0.169.0/build/three.module.js",
+    "three/addons/": "https://unpkg.com/three@0.169.0/examples/jsm/"
+  }
+}
+</script>
+<script type="module" src="app.js"></script>
+<script type="module" src="tabs.js"></script>
+<script type="module" src="generator.js"></script>
+</head>
+<body>
+<main>
+  <header><a class="brand" href="./">SOUND / FORM</a><span class="edition">01 — IMPULSE</span></header>
+  <div class="tabs" role="tablist" aria-label="Page sections">
+    <button id="tab-listen" class="tab" type="button" role="tab" aria-selected="true" aria-controls="panel-listen">Listen</button>
+    <button id="tab-generate" class="tab" type="button" role="tab" aria-selected="false" aria-controls="panel-generate" tabindex="-1">Generate</button>
+  </div>
+  <section id="panel-listen" class="instrument" role="tabpanel" aria-labelledby="tab-listen">
+    <div class="listen-tabs" role="tablist" aria-label="Listen views">
+      <button id="tab-spectrogram" class="listen-tab" type="button" role="tab" aria-selected="true" aria-controls="panel-spectrogram">Spectrogram</button>
+      <button id="tab-radial" class="listen-tab" type="button" role="tab" aria-selected="false" aria-controls="panel-radial" tabindex="-1">Radial</button>
+    </div>
+    <section id="panel-spectrogram" class="listen-view" role="tabpanel" aria-labelledby="tab-spectrogram">
+      <div class="spectrogram-frame">
+        <canvas id="spectrogram" class="spectrogram" role="img" aria-label="Spectrogram: time on the horizontal axis, logarithmic frequency on the vertical axis, colour showing relative level"></canvas>
+        <span id="spectrogram-progress" class="spectrogram-progress" aria-hidden="true" hidden></span>
+      </div>
+    </section>
+    <section id="panel-radial" class="listen-view radial-view" role="tabpanel" aria-labelledby="tab-radial" hidden>
+    <div class="drawing" tabindex="0" role="group" aria-label="Movable ring. Drag to move, use arrow keys to nudge, or plus and minus to scale." aria-describedby="layout-help">
+      <canvas id="ring-spectrogram" class="ring-spectrogram" width="600" height="600" aria-hidden="true"></canvas>
+      <svg viewBox="0 0 600 600" role="img" aria-label="Relief ring outline with a radial playback line">
+        <path id="outline"/>
+        <line id="progress" visibility="hidden"/>
+      </svg>
+      <div class="center-label" aria-hidden="true"><span id="elapsed">0.00</span><span class="unit">SECONDS</span></div>
+      <div class="end-labels" aria-hidden="true"><span>START</span><span>END</span></div>
+    </div>
+    <div class="layout-controls">
+      <label for="ring-scale">Scale</label>
+      <input id="ring-scale" type="range" min="10" max="400" value="100" step="1">
+      <output id="scale-value" for="ring-scale">100%</output>
+      <button id="reset-layout" type="button">Reset position &amp; scale</button>
+    </div>
+    <p id="layout-help">Drag the ring to move · Scroll over it to scale · Arrow keys to nudge · H to hide/show layout controls</p>
+    </section>
+    <div class="controls">
+      <button id="play" class="play" disabled>Loading…</button>
+      <fieldset><legend>Playback speed</legend><div class="speeds">
+        <button type="button" data-rate="0.245" aria-pressed="false">0.245×</button>
+        <button type="button" data-rate="0.5" aria-pressed="false">0.5×</button>
+        <button type="button" data-rate="1" aria-pressed="true">1×</button>
+      </div></fieldset>
+    </div>
+    <p id="status" role="status">Loading the recording and its outline…</p>
+  </section>
+  <section id="panel-generate" class="generator" role="tabpanel" aria-labelledby="tab-generate" hidden>
+    <div class="intro"><span class="eyebrow">MAKE A RELIEF</span><h2>Generate</h2></div>
+    <form id="generate-form" class="generate-form" novalidate>
+    <details class="parameter-panel" open>
+      <summary>Parameters</summary>
+    <fieldset class="group">
+      <legend>Geometry</legend>
+      <div class="group-grid">
+        <div class="param">
+          <label for="relief">Relief</label>
+          <span class="info">
+            <button type="button" class="info-dot" aria-label="About the relief">i</button>
+            <span class="info-panel" role="tooltip">Height of the tallest ridge above the base, in millimetres. Zero flattens the model.</span>
+          </span>
+          <input id="relief" name="relief" type="number" value="27" min="0" step="0.1">
+          <span class="unit">mm</span>
+        </div>
+        <div class="param">
+          <label for="base">Base</label>
+          <span class="info">
+            <button type="button" class="info-dot" aria-label="About the base">i</button>
+            <span class="info-panel" role="tooltip">Thickness of the base plate, in millimetres.</span>
+          </span>
+          <input id="base" name="base" type="number" value="3" min="0.1" step="0.1">
+          <span class="unit">mm</span>
+        </div>
+      <fieldset class="circular-fields">
+        <legend>Circular geometry</legend>
+        <div class="param">
+          <label for="diameter">Diameter</label>
+          <span class="info">
+            <button type="button" class="info-dot" aria-label="About the diameter">i</button>
+            <span class="info-panel" role="tooltip">Outer diameter of the ring, in millimetres.</span>
+          </span>
+          <input id="diameter" name="diameter" type="number" value="160" min="10" step="1">
+          <span class="unit">mm</span>
+        </div>
+        <div class="param">
+          <label for="inner-diameter">Inner diameter</label>
+          <span class="info">
+            <button type="button" class="info-dot" aria-label="About the inner diameter">i</button>
+            <span class="info-panel" role="tooltip">Diameter of the central opening, in millimetres. Must be positive and smaller than the outer diameter.</span>
+          </span>
+          <input id="inner-diameter" name="inner-diameter" type="number" value="40" min="1" step="1">
+          <span class="unit">mm</span>
+        </div>
+        <div class="param">
+          <label for="arc">Arc</label>
+          <span class="info">
+            <button type="button" class="info-dot" aria-label="About the arc">i</button>
+            <span class="info-panel" role="tooltip">How many degrees of the ring carry relief. The remainder is a flat gap. Must be greater than 0 and less than 360, and no more than 180 degrees per time frame.</span>
+          </span>
+          <input id="arc" name="arc" type="number" value="330" min="1" max="359" step="1">
+          <span class="unit">deg</span>
+        </div>
+      </fieldset>
+      <fieldset class="mould-fields">
+        <legend>Clay mould</legend>
+        <div class="param">
+          <label for="mould-relief">Mould relief</label>
+          <span class="info">
+            <button type="button" class="info-dot" aria-label="About the mould relief">i</button>
+            <span class="info-panel" role="tooltip">Peak height of the clay above its flat base, in millimetres. Lower than the printed relief so the cavity stays pressable.</span>
+          </span>
+          <input id="mould-relief" name="mould-relief" type="number" value="14" min="0.5" step="0.5">
+          <span class="unit">mm</span>
+        </div>
+        <div class="param">
+          <label for="mould-slope">Slope limit</label>
+          <span class="info">
+            <button type="button" class="info-dot" aria-label="About the slope limit">i</button>
+            <span class="info-panel" role="tooltip">Maximum slope of the relief. Narrow peaks are shaved so the clay does not tear when it is pulled out.</span>
+          </span>
+          <input id="mould-slope" name="mould-slope" type="number" value="60" min="5" max="89" step="1">
+          <span class="unit">deg</span>
+        </div>
+        <div class="param">
+          <label for="mould-scale">Mould scale</label>
+          <span class="info">
+            <button type="button" class="info-dot" aria-label="About the mould scale">i</button>
+            <span class="info-panel" role="tooltip">Scale of the exported mould. Use 1 for the full-size ring, or 0.4 for a quick test press.</span>
+          </span>
+          <input id="mould-scale" name="mould-scale" type="number" value="1" min="0.1" max="1" step="0.05">
+        </div>
+        <div class="param">
+          <label for="mould-back">Back</label>
+          <span class="info">
+            <button type="button" class="info-dot" aria-label="About the mould back">i</button>
+            <span class="info-panel" role="tooltip">Material left under the deepest part of the cavity, in millimetres. More keeps the mould flatter under the press.</span>
+          </span>
+          <input id="mould-back" name="mould-back" type="number" value="5" min="1" step="0.5">
+          <span class="unit">mm</span>
+        </div>
+      </fieldset>
+      </div>
+    </fieldset>
+    <fieldset class="group">
+      <legend>Analysis</legend>
+      <div class="group-grid">
+        <div class="param">
+          <label for="analysisRate">Analysis rate</label>
+          <span class="info">
+            <button type="button" class="info-dot" aria-label="About the analysis rate">i</button>
+            <span class="info-panel" role="tooltip">Every input is resampled to this rate first, so results never depend on the file or on the audio hardware. Window length is fft ÷ rate seconds and frequency resolution is rate ÷ fft Hz, so this rate sets both. Choose the file's own rate to reproduce the old command-line analysis; choosing a WAV file fills this in with its rate.</span>
+          </span>
+          <select id="analysisRate" name="analysisRate">
+            <option value="22050">22 050 Hz</option>
+            <option value="44100">44 100 Hz</option>
+            <option value="48000" selected>48 000 Hz</option>
+            <option value="96000">96 000 Hz</option>
+          </select>
+        </div>
+          <div class="param">
+            <label for="seconds">Seconds</label>
+            <span class="info">
+              <button type="button" class="info-dot" aria-label="About seconds">i</button>
+              <span class="info-panel" role="tooltip">Length of audio to analyse, counted from the start of the file. Limited by the recording; there is no automatic onset alignment. Choosing a file fills this in with its duration.</span>
+            </span>
+            <input id="seconds" name="seconds" type="number" value="3" min="0.01" step="0.01">
+          </div>
+          <div class="param">
+            <label for="channel">Channel</label>
+            <span class="info">
+              <button type="button" class="info-dot" aria-label="About the channel">i</button>
+              <span class="info-panel" role="tooltip">Zero-based channel index. Channels are analysed one at a time and never averaged.</span>
+            </span>
+            <input id="channel" name="channel" type="number" value="0" min="0" step="1">
+          </div>
+          <div class="param">
+            <label for="fft">FFT size</label>
+            <span class="info">
+              <button type="button" class="info-dot" aria-label="About the FFT size">i</button>
+              <span class="info-panel" role="tooltip">STFT window length in samples. A power of two between 128 and 65536. The window lasts this many samples divided by the analysis rate.</span>
+            </span>
+            <input id="fft" name="fft" type="number" value="4096" min="128" max="65536" step="1">
+          </div>
+          <div class="param">
+            <label for="rows">Rows</label>
+            <span class="info">
+              <button type="button" class="info-dot" aria-label="About rows">i</button>
+              <span class="info-panel" role="tooltip">Number of frequency samples. This does not improve FFT resolution; it resamples the existing spectrum more densely.</span>
+            </span>
+            <input id="rows" name="rows" type="number" value="101" min="2" step="1">
+          </div>
+          <div class="param">
+            <label for="cols">Cols</label>
+            <span class="info">
+              <button type="button" class="info-dot" aria-label="About cols">i</button>
+              <span class="info-panel" role="tooltip">Number of time frames. More frames means finer time detail and a larger STL.</span>
+            </span>
+            <input id="cols" name="cols" type="number" value="241" min="2" step="1">
+          </div>
+          <div class="param">
+            <label for="fmin">Min frequency</label>
+            <span class="info">
+              <button type="button" class="info-dot" aria-label="About the minimum frequency">i</button>
+              <span class="info-panel" role="tooltip">Lowest analysed frequency. Frequencies are spaced logarithmically from here up to the maximum.</span>
+            </span>
+            <input id="fmin" name="fmin" type="number" value="50" min="1" step="1">
+            <span class="unit">Hz</span>
+          </div>
+          <div class="param">
+            <label for="fmax">Max frequency</label>
+            <span class="info">
+              <button type="button" class="info-dot" aria-label="About the maximum frequency">i</button>
+              <span class="info-panel" role="tooltip">Highest analysed frequency, clamped to the Nyquist limit of the analysis rate (rate ÷ 2). The form warns when this applies.</span>
+            </span>
+            <input id="fmax" name="fmax" type="number" value="20000" min="1" step="1">
+            <span class="unit">Hz</span>
+          </div>
+          <div class="param">
+            <label for="floor">Floor</label>
+            <span class="info">
+              <button type="button" class="info-dot" aria-label="About the floor">i</button>
+              <span class="info-panel" role="tooltip">dB floor. Anything quieter is clamped to this value, which becomes the flat base of the model.</span>
+            </span>
+            <input id="floor" name="floor" type="number" value="-80" max="-1" step="1">
+            <span class="unit">dB</span>
+          </div>
+          <div class="param">
+            <label for="plot-time">Plot time</label>
+            <span class="info">
+              <button type="button" class="info-dot" aria-label="About the plot time axis">i</button>
+              <span class="info-panel" role="tooltip">Time axis for the exported spectrogram data. The relief itself always samples time linearly.</span>
+            </span>
+            <select id="plot-time" name="plot-time">
+              <option value="linear" selected>linear</option>
+              <option value="log">log</option>
+            </select>
+          </div>
+      </div>
+    </fieldset>
+    </details>
+    <div class="preview" role="group" aria-label="Preview">
+      <div class="generate-actions">
+        <button type="submit" id="generate" class="play">Generate</button>
+        <div class="param audio-choice">
+          <label for="audio-file">Audio file</label>
+          <span class="info">
+            <button type="button" class="info-dot" aria-label="About the audio file">i</button>
+            <span class="info-panel" role="tooltip">Any audio the browser can decode: WAV, AIFF, MP3, Ogg, or FLAC. Leave it empty to analyse the bundled impulse.wav.</span>
+          </span>
+          <input id="audio-file" name="audio-file" type="file" accept="audio/*">
+          <p class="hint">Leave empty to use impulse.wav.</p>
+        </div>
+      </div>
+      <p id="generate-status" class="note" role="status" aria-live="polite">Ready.</p>
+      <p id="rate-warning" class="note warn" hidden></p>
+      <p id="viewer-note" class="note warn" hidden></p>
+      <div class="preview-switch">
+        <label for="preview-model">Preview</label>
+        <select id="preview-model" disabled>
+          <option value="relief" selected>Relief</option>
+          <option value="mould">Mould</option>
+        </select>
+      </div>
+      <div id="viewer" class="viewer" aria-label="Generated model preview"></div>
+      <div id="downloads" class="downloads" hidden>
+        <span>Download</span>
+        <a id="download-stl" download>landscape.stl</a>
+        <a id="download-mould" download hidden>mould.stl</a>
+        <a id="download-landscape" download>landscape-data.json</a>
+        <a id="download-spectrogram" download>spectrogram.json</a>
+        <a id="download-plot" download>spectrogram-plot-data.json</a>
+      </div>
+    </div>
+    </form>
+  </section>
+  <footer><span>IMPULSE.WAV</span><span>TOP VIEW <span class="dot">·</span> LOGARITHMIC FREQUENCY</span><span id="duration">—</span></footer>
+</main>
+<audio id="audio" preload="auto" src="../impulse.wav"></audio>
+</body>
+</html>

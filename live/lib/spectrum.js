@@ -82,24 +82,28 @@ export function rowsFromBins(bins, { rows, fmin, fmax, fftSize, sampleRate }) {
 }
 
 /**
- * 1-2-1 smoothing along time only.
+ * 1-2-1 smoothing along time only, written into a caller-owned buffer.
  *
  * Frequency smoothing is deliberately absent: on this coarse grid a narrow
  * tone occupies a single row, and averaging it with silent neighbours would
  * flatten it into the base.
+ *
+ * The buffer is reused because this runs once per tick: at the longest history
+ * a fresh set of arrays would allocate several megabytes thirty times a second.
  */
-function smoothTime(values, cols) {
-  return values.map((row) => {
-    const smoothed = new Float64Array(cols);
+function smoothTimeInto(values, into, cols) {
+  for (let j = 0; j < values.length; j++) {
+    const row = values[j];
+    const out = into[j];
 
-    for (let i = 0; i < cols; i++) {
-      const previous = row[Math.max(0, i - 1)];
-      const next = row[Math.min(cols - 1, i + 1)];
-      smoothed[i] = (previous + 2 * row[i] + next) / 4;
+    out[0] = (row[0] + 2 * row[0] + row[1]) / 4;
+    for (let i = 1; i < cols - 1; i++) {
+      out[i] = (row[i - 1] + 2 * row[i] + row[i + 1]) / 4;
     }
+    out[cols - 1] = (row[cols - 2] + 2 * row[cols - 1] + row[cols - 1]) / 4;
+  }
 
-    return smoothed;
-  });
+  return into;
 }
 
 /**
@@ -110,6 +114,7 @@ function smoothTime(values, cols) {
  */
 export function createHistory({ rows, cols, floor }) {
   const columns = Array.from({ length: rows }, () => new Float64Array(cols).fill(floor));
+  const smoothedColumns = Array.from({ length: rows }, () => new Float64Array(cols));
 
   return {
     /** Appends one measured row, dropping the oldest column. */
@@ -121,9 +126,12 @@ export function createHistory({ rows, cols, floor }) {
       }
     },
 
-    /** The history after smoothing, ready to turn into heights. */
+    /**
+     * The history after smoothing, ready to turn into heights. The arrays are
+     * reused, so read them before the next call.
+     */
     smoothed() {
-      return smoothTime(columns, cols);
+      return smoothTimeInto(columns, smoothedColumns, cols);
     },
 
     /** Returns to a flat, silent ring. */

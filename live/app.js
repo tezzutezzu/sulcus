@@ -25,7 +25,8 @@ import {
   sourceFromOption,
 } from './lib/audio-input.js';
 
-const LENGTHS = [5, 10, 15, 20, 30];
+const MIN_SECONDS = 1;
+const MAX_SECONDS = 600;
 const FREQUENCIES = { fmin: 50, fmax: 20000 };
 /** The band plot reduces the spectrum to a finer grid than the ring's. */
 const PLOT_ROWS = 121;
@@ -35,7 +36,9 @@ const LEGACY_LENGTH_KEY = 'sound-form:live-length';
 
 const button = document.querySelector('#live-toggle');
 const sourceSelect = document.querySelector('#live-source');
-const lengthSelect = document.querySelector('#live-length');
+const lengthInput = document.querySelector('#live-length');
+const lengthLess = document.querySelector('#live-length-less');
+const lengthMore = document.querySelector('#live-length-more');
 const status = document.querySelector('#live-status');
 const viewerHost = document.querySelector('#viewer');
 const filterCanvas = document.querySelector('#filter-canvas');
@@ -66,10 +69,16 @@ let releasing = false;
 let selection = readPreference();
 let active = null;
 
+/** Whole seconds inside the allowed range; anything else falls back. */
+function clampLength(value) {
+  if (!Number.isFinite(value)) return DEFAULT_LENGTH;
+  return Math.min(Math.max(Math.round(value), MIN_SECONDS), MAX_SECONDS);
+}
+
 function readLength() {
   try {
     const stored = readStoredLength();
-    if (LENGTHS.includes(stored)) return stored;
+    if (Number.isFinite(stored) && stored > 0) return clampLength(stored);
   } catch {
     // Storage may be unavailable; fall back to the default.
   }
@@ -345,13 +354,37 @@ async function changeSource() {
 // ---------------------------------------------------------------------------
 
 function changeLength() {
-  const next = Number(lengthSelect.value);
-  seconds = LENGTHS.includes(next) ? next : DEFAULT_LENGTH;
-  lengthSelect.value = String(seconds);
+  // An emptied field is a half-finished edit, not a request for the default.
+  if (lengthInput.value.trim() === '') {
+    showLength();
+    return;
+  }
+
+  adoptLength(lengthInput.valueAsNumber);
+}
+
+/** Steps the length by whole seconds; the buttons are explicit, so they apply. */
+function stepLength(delta) {
+  adoptLength(seconds + delta);
+}
+
+/** Shows the length in the field and rebuilds the ring when it really changed. */
+function adoptLength(next) {
+  const clamped = clampLength(next);
+  const unchanged = clamped === seconds;
+
+  seconds = clamped;
+  showLength();
   rememberLength(seconds);
+
+  if (unchanged) return;
 
   applyRing();
   status.textContent = `Showing the last ${seconds} seconds.`;
+}
+
+function showLength() {
+  lengthInput.value = String(seconds);
 }
 
 // ---------------------------------------------------------------------------
@@ -406,7 +439,7 @@ function handleShortcut(event) {
 // ---------------------------------------------------------------------------
 
 async function init() {
-  lengthSelect.value = String(seconds);
+  showLength();
 
   plot = createBandPlot({
     canvas: filterCanvas,
@@ -441,7 +474,9 @@ button.addEventListener('click', () => {
 });
 
 sourceSelect.addEventListener('change', changeSource);
-lengthSelect.addEventListener('change', changeLength);
+lengthInput.addEventListener('change', changeLength);
+lengthLess.addEventListener('click', () => stepLength(-1));
+lengthMore.addEventListener('click', () => stepLength(1));
 document.addEventListener('keydown', handleShortcut);
 
 if (navigator.mediaDevices && navigator.mediaDevices.addEventListener) {

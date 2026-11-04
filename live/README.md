@@ -1,4 +1,4 @@
-# Sound / Form — Live
+# Sulcus — Live
 
 A real-time visualiser for an audio input. The sound shapes a ring: the last
 15 seconds (by default) scroll around it, low frequencies toward the centre and
@@ -18,7 +18,8 @@ Open the page, pick a source, press **Start**. Press **Stop** when you are done.
 | Start / Stop | Opens and closes the capture |
 | Length | 5, 10, 15, 20 or 30 seconds of rolling history (default 15) |
 
-Shortcuts: `T` top view, `R` reset the camera, `A` toggle a slow auto-orbit.
+Shortcuts: `T` top view, `R` reset the camera, `A` toggle a slow auto-orbit, `C`
+print the current camera position to the console.
 Drag to orbit and scroll to zoom at any time.
 
 Your last source and length are remembered.

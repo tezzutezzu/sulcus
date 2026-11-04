@@ -27,7 +27,8 @@ import {
 const LENGTHS = [5, 10, 15, 20, 30];
 const FREQUENCIES = { fmin: 50, fmax: 20000 };
 const DEFAULT_LENGTH = 15;
-const LENGTH_KEY = 'sound-form:live-length';
+const LENGTH_KEY = 'sulcus:live-length';
+const LEGACY_LENGTH_KEY = 'sound-form:live-length';
 
 const button = document.querySelector('#live-toggle');
 const sourceSelect = document.querySelector('#live-source');
@@ -56,13 +57,26 @@ let active = null;
 
 function readLength() {
   try {
-    const stored = Number(localStorage.getItem(LENGTH_KEY));
+    const stored = readStoredLength();
     if (LENGTHS.includes(stored)) return stored;
   } catch {
     // Storage may be unavailable; fall back to the default.
   }
 
   return DEFAULT_LENGTH;
+}
+
+/** Reads the remembered length, moving it off the pre-rename key once. */
+function readStoredLength() {
+  const current = localStorage.getItem(LENGTH_KEY);
+  if (current !== null) return Number(current);
+
+  const legacy = localStorage.getItem(LEGACY_LENGTH_KEY);
+  if (legacy === null) return NaN;
+
+  localStorage.setItem(LENGTH_KEY, legacy);
+  localStorage.removeItem(LEGACY_LENGTH_KEY);
+  return Number(legacy);
 }
 
 function rememberLength(value) {
@@ -340,6 +354,9 @@ function handleShortcut(event) {
     status.textContent = 'View reset.';
   } else if (key === 'a') {
     status.textContent = viewer.toggleAutoRotate() ? 'Auto-orbit on.' : 'Auto-orbit off.';
+  } else if (key === 'c') {
+    if (!viewer.logCamera()) return;
+    status.textContent = 'Camera position logged to the console.';
   } else {
     return;
   }

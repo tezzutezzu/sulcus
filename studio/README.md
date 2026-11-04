@@ -1,4 +1,4 @@
-# Sound / Form — acoustic relief generator
+# Sulcus — acoustic relief generator
 
 Turns a recording into an acoustic relief: its spectrogram shaped as a ring,
 shown as a listenable player and exported as a 3D-printable STL.

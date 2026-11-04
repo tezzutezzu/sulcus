@@ -192,9 +192,18 @@ const drawing = document.querySelector('.drawing');
 const scaleControl = document.querySelector('#ring-scale');
 const scaleValue = document.querySelector('#scale-value');
 const layout = { x: 0, y: 0, scale: 1 };
-const layoutStorageKey = 'sound-form:ring-layout:v1';
+const layoutStorageKey = 'sulcus:ring-layout:v1';
+const legacyLayoutStorageKey = 'sound-form:ring-layout:v1';
 try {
-  const saved = JSON.parse(localStorage.getItem(layoutStorageKey));
+  let savedJson = localStorage.getItem(layoutStorageKey);
+  if (savedJson === null) {
+    savedJson = localStorage.getItem(legacyLayoutStorageKey);
+    if (savedJson !== null) {
+      localStorage.setItem(layoutStorageKey, savedJson);
+      localStorage.removeItem(legacyLayoutStorageKey);
+    }
+  }
+  const saved = JSON.parse(savedJson);
   if (saved && Number.isFinite(saved.x) && Number.isFinite(saved.y) &&
       Number.isFinite(saved.scale) && saved.scale >= 0.1 && saved.scale <= 4) {
     layout.x = saved.x;

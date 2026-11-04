@@ -11,7 +11,8 @@
  * always includes is stopped immediately, since only audio is used here.
  */
 
-const STORAGE_KEY = 'sound-form:live-source';
+const STORAGE_KEY = 'sulcus:live-source';
+const LEGACY_STORAGE_KEY = 'sound-form:live-source';
 
 const MICROPHONE = {
   channelCount: 1,
@@ -20,10 +21,23 @@ const MICROPHONE = {
   autoGainControl: false,
 };
 
+/** Reads the remembered source, moving it off the pre-rename key once. */
+function readStoredPreference() {
+  const current = localStorage.getItem(STORAGE_KEY);
+  if (current !== null) return JSON.parse(current);
+
+  const legacy = localStorage.getItem(LEGACY_STORAGE_KEY);
+  if (legacy === null) return null;
+
+  localStorage.setItem(STORAGE_KEY, legacy);
+  localStorage.removeItem(LEGACY_STORAGE_KEY);
+  return JSON.parse(legacy);
+}
+
 /** The remembered choice; the device may no longer be connected. */
 export function readPreference() {
   try {
-    const stored = JSON.parse(localStorage.getItem(STORAGE_KEY));
+    const stored = readStoredPreference();
     if (stored && (stored.kind === 'microphone' || stored.kind === 'display')) {
       return { kind: stored.kind, deviceId: stored.deviceId || '' };
     }

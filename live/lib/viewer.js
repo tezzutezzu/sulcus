@@ -164,6 +164,15 @@ function createMaterial() {
   });
 }
 
+/**
+ * The view a freshly framed model starts from, and the one resetView() returns
+ * to: back-left, slightly above, and a touch closer than the fitted distance.
+ * Measured on the live ring, whose fitted distance is 282.22 mm at fov 45.
+ * Kept relative to that fit so models of any size frame alike.
+ */
+const DEFAULT_VIEW_DIRECTION = new THREE.Vector3(-0.686926, 0.261874, 0.677905);
+const DEFAULT_VIEW_SCALE = 0.985835;
+
 /** Positions the camera to fit a bounding-box size, once per model. */
 function frame(size) {
   const radius = Math.max(size.x, size.y, size.z) * 0.5 || 1;
@@ -171,7 +180,9 @@ function frame(size) {
 
   camera.near = radius / 100;
   camera.far = radius * 100;
-  camera.position.set(distance * 0.55, distance * 0.95, distance * 0.75);
+  camera.position
+    .copy(DEFAULT_VIEW_DIRECTION)
+    .multiplyScalar(distance * DEFAULT_VIEW_SCALE);
   camera.updateProjectionMatrix();
 
   controls.target.set(0, 0, 0);
@@ -205,6 +216,34 @@ export function setTopView() {
   const tilt = distance * 0.001;
   camera.position.set(target.x + tilt, target.y + distance, target.z + tilt);
   controls.update();
+}
+
+/**
+ * Prints the current camera placement, so a view found by orbiting can be
+ * copied out as a new default. Returns the same values it logs.
+ */
+export function logCamera() {
+  if (!camera || !controls) return null;
+
+  const position = camera.position.clone();
+  const target = controls.target.clone();
+  const round = (value) => Number(value.toFixed(2));
+
+  const placement = {
+    position: [round(position.x), round(position.y), round(position.z)],
+    target: [round(target.x), round(target.y), round(target.z)],
+    distance: round(position.distanceTo(target)),
+    fov: camera.fov,
+  };
+
+  console.log(
+    `[camera] position ${placement.position.join(', ')} · ` +
+    `target ${placement.target.join(', ')} · ` +
+    `distance ${placement.distance} · fov ${placement.fov}`,
+  );
+  console.log(`[camera] ${JSON.stringify(placement)}`);
+
+  return placement;
 }
 
 /** Toggles the slow orbit and reports whether it is now on. */

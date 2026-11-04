@@ -3,9 +3,9 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="description" content="Live visualiser for an audio input: a ring whose ridges follow the sound in real time.">
+<meta name="description" content="Sulcus — live visualiser for an audio input: a ring whose ridges follow the sound in real time.">
 <meta name="theme-color" content="#111315">
-<title>Sound / Form — Live</title>
+<title>Sulcus — Live</title>
 <link rel="stylesheet" href="style.css">
 <script type="importmap">
 {
@@ -19,7 +19,7 @@
 </head>
 <body>
 <main class="live">
-  <div id="viewer" class="live-viewer" role="img" aria-keyshortcuts="T R A" aria-label="Live input relief: a ring whose ridges rise with the sound picked up from the selected source"></div>
+  <div id="viewer" class="live-viewer" role="img" aria-keyshortcuts="T R A C" aria-label="Live input relief: a ring whose ridges rise with the sound picked up from the selected source"></div>
   <div class="live-controls">
     <select id="live-source" class="live-select" aria-label="Audio source">
       <option value="default">Default microphone</option>
@@ -33,7 +33,7 @@
       <option value="30">30 s</option>
     </select>
   </div>
-  <p id="live-status" class="sr-only" role="status" aria-live="polite">Press Start to visualise the input. T top view, R reset, A auto-orbit.</p>
+  <p id="live-status" class="sr-only" role="status" aria-live="polite">Press Start to visualise the input. T top view, R reset, A auto-orbit, C log the camera.</p>
 </main>
 </body>
 </html>

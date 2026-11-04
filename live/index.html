@@ -40,9 +40,12 @@
     <select id="live-source" class="live-select" aria-label="Audio source">
       <option value="default">Default microphone</option>
     </select>
-    <button id="live-toggle" class="play" type="button" aria-pressed="false">Start</button>
+    <button id="live-toggle" class="play" type="button" aria-pressed="false">
+      <span id="live-toggle-icon" class="play-icon" aria-hidden="true"></span>
+      <span id="live-toggle-label" class="play-label sr-only">Start</span>
+    </button>
     <div class="live-length">
-      <input id="live-length" type="range" min="1" max="600" step="1" value="15"
+      <input id="live-length" type="range" min="1" max="60" step="1" value="15"
              aria-label="History length" aria-valuetext="15 seconds">
       <output id="live-length-value" class="length-value" for="live-length"
               aria-hidden="true">15 s</output>

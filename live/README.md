@@ -10,31 +10,31 @@ or written to disk.
 
 ## Using it
 
-Open the page, pick a source, press **Start**. Press **Stop** when you are done.
+Open the page, pick a source, press the round record button. Press the square
+stop icon when you are done.
 
 | Control | What it does |
 | --- | --- |
 | Source | Default microphone, a named audio input, or **System / tab audio** |
-| Start / Stop | Opens and closes the capture |
-| Length | Seconds of rolling history on a slider, 1 to 600 (default 15) |
+| Record / Stop | The round button: a dot opens the capture, a spinner while it connects, a square closes it. A failure turns it into a labelled retry pill |
+| Length | Seconds of rolling history on a slider, 1 to 60 (default 15) |
 
 Shortcuts: `T` top view, `R` reset the camera, `A` toggle a slow auto-orbit, `C`
 print the current camera position to the console.
 Drag to orbit and scroll to zoom at any time.
 
-Your last source and length are remembered.
+Your last source is remembered; the length always starts at 15 seconds.
 
 ### Length
 
-The slider sets the seconds of history the ring shows, from 1 to 600. The
-readout follows the thumb while you drag, but the ring only rebuilds when you
-let go, so sweeping across the range never reallocates the mesh under the
-pointer. Arrow keys step by one second each and commit on the same short pause.
+The slider sets the seconds of history the ring shows, from 1 to 60, and every
+visit starts again at 15. The readout follows the thumb while you drag, but the
+ring only rebuilds when you let go, so sweeping across the range never
+reallocates the mesh under the pointer. Arrow keys step by one second each and
+commit on the same short pause.
 
-Changing the length rebuilds the ring, which is instant at 15 s and takes
-noticeably longer toward 600 s: the mesh then has 51 × 18,000 vertices and about
-45 MB of buffers, and the per-frame work grows with the column count. Anything
-up to about two minutes stays comfortable on a laptop.
+Changing the length rebuilds the ring: the mesh has 51 × 1,800 vertices at the
+60 s ceiling, about 4 MB of position and index buffers.
 
 ### Sources
 

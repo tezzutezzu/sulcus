@@ -26,15 +26,36 @@ import {
 } from './lib/audio-input.js';
 
 const MIN_SECONDS = 1;
-const MAX_SECONDS = 600;
+const MAX_SECONDS = 60;
 const FREQUENCIES = { fmin: 50, fmax: 20000 };
 /** The band plot reduces the spectrum to a finer grid than the ring's. */
 const PLOT_ROWS = 121;
 const DEFAULT_LENGTH = 15;
-const LENGTH_KEY = 'sulcus:live-length';
-const LEGACY_LENGTH_KEY = 'sound-form:live-length';
+
+/**
+ * Capture button icons, inline so the published page needs no icon font and no
+ * extra request. Each is a 24×24 drawing using the button's own ink colour.
+ */
+const ICONS = {
+  record: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8" fill="currentColor"/></svg>',
+  loading: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" ' +
+    'stroke="currentColor" stroke-width="2.8" stroke-linecap="round" ' +
+    'stroke-dasharray="40 16.5"/></svg>',
+  stop: '<svg viewBox="0 0 24 24"><rect x="5.5" y="5.5" width="13" height="13" rx="2.6" ' +
+    'fill="currentColor"/></svg>',
+  retry: '<svg viewBox="0 0 24 24"><path d="M4.2 12a7.8 7.8 0 1 0 2.3-5.5" fill="none" ' +
+    'stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>' +
+    '<path d="M4 3.6v4.4h4.4" fill="none" stroke="currentColor" stroke-width="2.4" ' +
+    'stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  alert: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" ' +
+    'stroke="currentColor" stroke-width="2.2"/><path d="M12 6.8v6.4" ' +
+    'stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>' +
+    '<circle cx="12" cy="16.6" r="1.35" fill="currentColor"/></svg>',
+};
 
 const button = document.querySelector('#live-toggle');
+const buttonIcon = document.querySelector('#live-toggle-icon');
+const buttonLabel = document.querySelector('#live-toggle-label');
 const sourceSelect = document.querySelector('#live-source');
 const lengthInput = document.querySelector('#live-length');
 const lengthValue = document.querySelector('#live-length-value');
@@ -47,7 +68,7 @@ const filterHigh = document.querySelector('#filter-high');
 const filterLowLabel = document.querySelector('#filter-low-label');
 const filterHighLabel = document.querySelector('#filter-high-label');
 
-let seconds = readLength();
+let seconds = DEFAULT_LENGTH;
 let band = { low: FREQUENCIES.fmin, high: FREQUENCIES.fmax };
 let grid = null;
 let positions = null;
@@ -73,38 +94,6 @@ let active = null;
 function clampLength(value) {
   if (!Number.isFinite(value)) return DEFAULT_LENGTH;
   return Math.min(Math.max(Math.round(value), MIN_SECONDS), MAX_SECONDS);
-}
-
-function readLength() {
-  try {
-    const stored = readStoredLength();
-    if (Number.isFinite(stored) && stored > 0) return clampLength(stored);
-  } catch {
-    // Storage may be unavailable; fall back to the default.
-  }
-
-  return DEFAULT_LENGTH;
-}
-
-/** Reads the remembered length, moving it off the pre-rename key once. */
-function readStoredLength() {
-  const current = localStorage.getItem(LENGTH_KEY);
-  if (current !== null) return Number(current);
-
-  const legacy = localStorage.getItem(LEGACY_LENGTH_KEY);
-  if (legacy === null) return NaN;
-
-  localStorage.setItem(LENGTH_KEY, legacy);
-  localStorage.removeItem(LEGACY_LENGTH_KEY);
-  return Number(legacy);
-}
-
-function rememberLength(value) {
-  try {
-    localStorage.setItem(LENGTH_KEY, String(value));
-  } catch {
-    // Storage may be unavailable; the choice still applies to this session.
-  }
 }
 
 // ---------------------------------------------------------------------------
@@ -216,9 +205,22 @@ async function release() {
 }
 
 function showError(error, source) {
-  button.textContent = 'Retry input';
-  button.setAttribute('aria-pressed', 'false');
+  setButton({ icon: 'retry', label: 'Retry input', showLabel: true, pressed: false });
   status.textContent = describeError(error, source);
+}
+
+/**
+ * Paints the capture button. The icon carries the state and the label is its
+ * accessible name; it is only shown inline when the state needs words, which
+ * happens for the failures where the icon alone cannot say what to do next.
+ */
+function setButton({ icon, label, showLabel = false, pressed }) {
+  buttonIcon.innerHTML = ICONS[icon];
+  buttonLabel.textContent = label;
+  buttonLabel.classList.toggle('sr-only', !showLabel);
+  button.classList.toggle('is-labelled', showLabel);
+  button.classList.toggle('is-loading', icon === 'loading');
+  if (pressed !== undefined) button.setAttribute('aria-pressed', String(pressed));
 }
 
 async function begin(source) {
@@ -230,8 +232,7 @@ async function begin(source) {
   track.addEventListener('ended', () => {
     if (releasing) return;
     release();
-    button.textContent = 'Reconnect input';
-    button.setAttribute('aria-pressed', 'false');
+    setButton({ icon: 'retry', label: 'Reconnect input', showLabel: true, pressed: false });
     status.textContent = 'The input disconnected. Choose a source and try again.';
     refreshSources();
   });
@@ -257,8 +258,7 @@ async function begin(source) {
   writeHeights(history.smoothed());
 
   timer = setInterval(tick, 1000 / FPS);
-  button.textContent = 'Stop';
-  button.setAttribute('aria-pressed', 'true');
+  setButton({ icon: 'stop', label: 'Stop', pressed: true });
   status.textContent = source.kind === 'display'
     ? 'Listening to the shared audio.'
     : 'Listening to the input.';
@@ -270,7 +270,7 @@ async function begin(source) {
 async function start() {
   button.disabled = true;
   sourceSelect.disabled = true;
-  button.textContent = 'Starting…';
+  setButton({ icon: 'loading', label: 'Starting', pressed: false });
 
   try {
     await begin(selection);
@@ -287,8 +287,7 @@ async function stop() {
   button.disabled = true;
   sourceSelect.disabled = true;
   await release();
-  button.textContent = 'Start';
-  button.setAttribute('aria-pressed', 'false');
+  setButton({ icon: 'record', label: 'Start', pressed: false });
   status.textContent = 'Capture stopped.';
   button.disabled = false;
   sourceSelect.disabled = false;
@@ -353,14 +352,13 @@ async function changeSource() {
 // Length
 // ---------------------------------------------------------------------------
 
-/** Adopts a length: persists it and rebuilds the ring when it really changed. */
+/** Adopts a length: rebuilds the ring when it really changed. */
 function adoptLength(next) {
   const clamped = clampLength(next);
   const unchanged = clamped === seconds;
 
   seconds = clamped;
   showLength();
-  rememberLength(seconds);
 
   if (unchanged) return;
 
@@ -443,7 +441,18 @@ function handleShortcut(event) {
 // Init
 // ---------------------------------------------------------------------------
 
+/** Keeps the band panel clear of the controls, which wrap on narrow screens. */
+function trackControlsHeight() {
+  const controls = document.querySelector('.live-controls');
+
+  new ResizeObserver(() => {
+    document.documentElement.style.setProperty('--controls-height', `${controls.offsetHeight}px`);
+  }).observe(controls);
+}
+
 async function init() {
+  setButton({ icon: 'record', label: 'Start', pressed: false });
+  trackControlsHeight();
   showLength();
 
   plot = createBandPlot({
@@ -466,7 +475,7 @@ async function init() {
     viewer = null;
     button.disabled = true;
     sourceSelect.disabled = true;
-    button.textContent = '3D unavailable';
+    setButton({ icon: 'alert', label: '3D unavailable', showLabel: true, pressed: false });
     status.textContent = `The 3D visualiser could not start: ${error.message}`;
   }
 
@@ -480,7 +489,7 @@ button.addEventListener('click', () => {
 
 sourceSelect.addEventListener('change', changeSource);
 // The readout follows the thumb; the ring waits for the release, so dragging
-// across 600 seconds does not rebuild the mesh under the pointer.
+// across the whole range does not rebuild the mesh under the pointer.
 lengthInput.addEventListener('input', () => renderLength(lengthInput.valueAsNumber));
 lengthInput.addEventListener('change', scheduleLength);
 document.addEventListener('keydown', handleShortcut);
@@ -503,8 +512,7 @@ window.addEventListener('pagehide', (event) => {
 
 window.addEventListener('pageshow', (event) => {
   if (!event.persisted || stream || !viewer) return;
-  button.textContent = 'Start';
-  button.setAttribute('aria-pressed', 'false');
+  setButton({ icon: 'record', label: 'Start', pressed: false });
   status.textContent = 'Press Start to visualise the input.';
 });
 

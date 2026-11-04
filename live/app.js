@@ -15,6 +15,7 @@
 import { RELIEF_DEFAULTS, reliefHeight, reliefTopology } from './lib/relief.js';
 import { FFT_SIZE, FPS, MIN_DB, ROWS, createHistory, rowsFromBins } from './lib/spectrum.js';
 import { createBandPlot } from './lib/band-plot.js';
+import { encodeStl } from './lib/stl.js';
 import {
   describeError,
   listSources,
@@ -59,6 +60,7 @@ const buttonLabel = document.querySelector('#live-toggle-label');
 const sourceSelect = document.querySelector('#live-source');
 const lengthInput = document.querySelector('#live-length');
 const lengthValue = document.querySelector('#live-length-value');
+const downloadButton = document.querySelector('#live-download');
 const status = document.querySelector('#live-status');
 const viewerHost = document.querySelector('#viewer');
 const filterCanvas = document.querySelector('#filter-canvas');
@@ -391,6 +393,41 @@ function scheduleLength() {
 }
 
 // ---------------------------------------------------------------------------
+// Download
+// ---------------------------------------------------------------------------
+
+/**
+ * Local YYYYMMDD-HHMMSS. Seconds, not minutes: two downloads in the same minute
+ * would otherwise share a name and the second would overwrite the first.
+ */
+function stamp(date = new Date()) {
+  const pad = (value) => String(value).padStart(2, '0');
+  return `${date.getFullYear()}${pad(date.getMonth() + 1)}${pad(date.getDate())}` +
+    `-${pad(date.getHours())}${pad(date.getMinutes())}${pad(date.getSeconds())}`;
+}
+
+/**
+ * Saves the ring exactly as it is on screen. Nothing is recomputed: the buffers
+ * already hold the current band mapping and history length, and capture keeps
+ * running while the file is written.
+ */
+function downloadStl() {
+  if (!positions || !indices) return;
+
+  const bytes = encodeStl(positions, indices);
+  const url = URL.createObjectURL(new Blob([bytes], { type: 'model/stl' }));
+  const link = document.createElement('a');
+
+  link.href = url;
+  link.download = `sulcus-live-${stamp()}.stl`;
+  link.click();
+
+  // The click needs the URL alive; release it once the browser has read it.
+  setTimeout(() => URL.revokeObjectURL(url), 0);
+  status.textContent = 'Saved the ring as an STL file.';
+}
+
+// ---------------------------------------------------------------------------
 // Band
 // ---------------------------------------------------------------------------
 
@@ -470,7 +507,6 @@ async function init() {
   try {
     viewer = await import('./lib/viewer.js');
     viewer.mount(viewerHost);
-    applyRing();
   } catch (error) {
     viewer = null;
     button.disabled = true;
@@ -478,6 +514,10 @@ async function init() {
     setButton({ icon: 'alert', label: '3D unavailable', showLabel: true, pressed: false });
     status.textContent = `The 3D visualiser could not start: ${error.message}`;
   }
+
+  // The mesh is built whether or not there is a viewer: without WebGL the page
+  // cannot draw the ring, but the STL can still be downloaded.
+  applyRing();
 
   refreshSources();
 }
@@ -492,6 +532,7 @@ sourceSelect.addEventListener('change', changeSource);
 // across the whole range does not rebuild the mesh under the pointer.
 lengthInput.addEventListener('input', () => renderLength(lengthInput.valueAsNumber));
 lengthInput.addEventListener('change', scheduleLength);
+downloadButton.addEventListener('click', downloadStl);
 document.addEventListener('keydown', handleShortcut);
 
 if (navigator.mediaDevices && navigator.mediaDevices.addEventListener) {

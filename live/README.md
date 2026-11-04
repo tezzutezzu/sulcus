@@ -18,6 +18,7 @@ stop icon when you are done.
 | Source | Default microphone, a named audio input, or **System / tab audio** |
 | Record / Stop | The round button: a dot opens the capture, a spinner while it connects, a square closes it. A failure turns it into a labelled retry pill |
 | Length | Seconds of rolling history on a slider, 1 to 60 (default 15) |
+| STL | Downloads the ring as it stands, ready to slice or print |
 
 Shortcuts: `T` top view, `R` reset the camera, `A` toggle a slow auto-orbit, `C`
 print the current camera position to the console.
@@ -35,6 +36,19 @@ commit on the same short pause.
 
 Changing the length rebuilds the ring: the mesh has 51 × 1,800 vertices at the
 60 s ceiling, about 4 MB of position and index buffers.
+
+### Downloading the ring
+
+**STL** saves the ring as it is on screen, as a binary STL in millimetres, Z-up,
+without colours. Nothing is recomputed at that moment: the file carries the
+band on the radius, the current history length around the arc, and whatever the
+ring was showing — during a capture that is the live shape, and after **Stop**
+it is the last shape it held. Before the first **Start** the ring is flat, and
+the button still exports it.
+
+The name is `sulcus-live-YYYYMMDD-HHMMSS.stl`, local time. The mesh is a closed
+solid with a top and a bottom grid, so files run about 4.6 MB at 15 s and 18 MB
+at 60 s.
 
 ### Sources
 
@@ -97,6 +111,7 @@ network access the first time.
 | `lib/relief.js` | Ring shape: topology, heights, shared with the generator |
 | `lib/spectrum.js` | FFT-bin to log-frequency mapping and rolling history |
 | `lib/band-plot.js` | Band panel: spectrum curve, edge dragging, keyboard |
+| `lib/stl.js` | Binary STL encoder for the ring buffers |
 | `lib/audio-input.js` | Source enumeration, capture, errors, saved choice |
 | `lib/viewer.js` | Three.js scene, camera views, in-place mesh updates |
 

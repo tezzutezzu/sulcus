@@ -289,6 +289,31 @@ select:focus-visible {
   font-variant-numeric: tabular-nums;
 }
 
+/* Downloads the ring as it stands, in the same pill language as the selects. */
+.live-download {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  height: 40px;
+  padding: 0 16px 0 13px;
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  color: #e3e1dc;
+  background: #1b1e20;
+  border: 1px solid #3a3f41;
+  border-radius: 30px;
+}
+
+.live-download:hover {
+  background: #23282a;
+  border-color: #555b5b;
+}
+
+.live-download svg {
+  width: 16px;
+  height: 16px;
+}
+
 .sr-only {
   position: absolute;
   width: 1px;

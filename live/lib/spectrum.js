@@ -21,6 +21,20 @@ export const ROWS = 51;
 export const MIN_DB = -100;
 
 /**
+ * Frequency at a fraction of the way from `fmin` to `fmax` on a log axis:
+ * 0 is `fmin`, 1 is `fmax`. The band plot uses the same mapping, so the axis it
+ * draws and the rows that fill the ring cannot drift apart.
+ */
+export function logFrequency(fraction, { fmin, fmax }) {
+  return fmin * (fmax / fmin) ** fraction;
+}
+
+/** Inverse of logFrequency(): where a frequency sits, 0 to 1. */
+export function logFraction(frequency, { fmin, fmax }) {
+  return Math.log(frequency / fmin) / Math.log(fmax / fmin);
+}
+
+/**
  * Resamples analyser bins onto logarithmically spaced frequency rows.
  *
  * Each row takes the loudest bin in its own band rather than a single point
@@ -35,8 +49,8 @@ export const MIN_DB = -100;
 export function rowsFromBins(bins, { rows, fmin, fmax, fftSize, sampleRate }) {
   const top = Math.min(fmax, sampleRate / 2);
   const lastBin = fftSize / 2 - 1;
-  const ratio = top / fmin;
-  const frequencyAt = (position) => fmin * ratio ** (position / (rows - 1));
+  const frequencyAt = (position) =>
+    logFrequency(position / (rows - 1), { fmin, fmax: top });
   const binAt = (frequency) => Math.min(Math.max((frequency * fftSize) / sampleRate, 0), lastBin);
   const result = new Float64Array(rows);
 

@@ -14,6 +14,7 @@
 
 import { RELIEF_DEFAULTS, reliefHeight, reliefTopology } from './lib/relief.js';
 import { FFT_SIZE, FPS, MIN_DB, ROWS, createHistory, rowsFromBins } from './lib/spectrum.js';
+import { createBandPlot } from './lib/band-plot.js';
 import {
   describeError,
   listSources,
@@ -26,6 +27,8 @@ import {
 
 const LENGTHS = [5, 10, 15, 20, 30];
 const FREQUENCIES = { fmin: 50, fmax: 20000 };
+/** The band plot reduces the spectrum to a finer grid than the ring's. */
+const PLOT_ROWS = 121;
 const DEFAULT_LENGTH = 15;
 const LENGTH_KEY = 'sulcus:live-length';
 const LEGACY_LENGTH_KEY = 'sound-form:live-length';
@@ -35,8 +38,15 @@ const sourceSelect = document.querySelector('#live-source');
 const lengthSelect = document.querySelector('#live-length');
 const status = document.querySelector('#live-status');
 const viewerHost = document.querySelector('#viewer');
+const filterCanvas = document.querySelector('#filter-canvas');
+const filterPlot = document.querySelector('#filter-plot');
+const filterLow = document.querySelector('#filter-low');
+const filterHigh = document.querySelector('#filter-high');
+const filterLowLabel = document.querySelector('#filter-low-label');
+const filterHighLabel = document.querySelector('#filter-high-label');
 
 let seconds = readLength();
+let band = { low: FREQUENCIES.fmin, high: FREQUENCIES.fmax };
 let grid = null;
 let positions = null;
 let indices = null;
@@ -45,6 +55,7 @@ let topCount = 0;
 let nx = 0;
 
 let viewer = null;
+let plot = null;
 let mounted = false;
 let stream = null;
 let context = null;
@@ -92,7 +103,8 @@ function rememberLength(value) {
 // ---------------------------------------------------------------------------
 
 function buildRing() {
-  grid = { ...RELIEF_DEFAULTS, ...FREQUENCIES, rows: ROWS, cols: seconds * FPS };
+  // The band, not the frequency defaults, decides which range the rows cover.
+  grid = { ...RELIEF_DEFAULTS, rows: ROWS, cols: seconds * FPS };
 
   const topology = reliefTopology(grid);
   topCount = topology.topCount;
@@ -143,13 +155,21 @@ export function pushRow(row) {
 
 function tick() {
   analyser.getFloatFrequencyData(bins);
-  pushRow(rowsFromBins(bins, {
-    rows: ROWS,
-    fmin: grid.fmin,
-    fmax: grid.fmax,
-    fftSize: FFT_SIZE,
-    sampleRate: context.sampleRate,
-  }));
+
+  const options = { fftSize: FFT_SIZE, sampleRate: context.sampleRate };
+
+  // The ring shows only the chosen band; the plot keeps the whole range in view
+  // so the band is visible in context.
+  pushRow(rowsFromBins(bins, { rows: ROWS, fmin: band.low, fmax: band.high, ...options }));
+
+  if (plot) {
+    plot.setValues(rowsFromBins(bins, {
+      rows: PLOT_ROWS,
+      fmin: FREQUENCIES.fmin,
+      fmax: FREQUENCIES.fmax,
+      ...options,
+    }));
+  }
 }
 
 // ---------------------------------------------------------------------------
@@ -335,6 +355,23 @@ function changeLength() {
 }
 
 // ---------------------------------------------------------------------------
+// Band
+// ---------------------------------------------------------------------------
+
+/**
+ * Adopts a new band. The stored columns are dB values indexed by row, so they
+ * only mean something under the row mapping that produced them: the history
+ * starts again rather than showing the old audio stretched into the new band.
+ */
+function changeBand(next) {
+  band = next;
+  if (!history) return;
+
+  history.reset();
+  writeHeights(history.smoothed());
+}
+
+// ---------------------------------------------------------------------------
 // Camera shortcuts
 // ---------------------------------------------------------------------------
 
@@ -371,6 +408,18 @@ function handleShortcut(event) {
 async function init() {
   lengthSelect.value = String(seconds);
 
+  plot = createBandPlot({
+    canvas: filterCanvas,
+    surface: filterPlot,
+    handles: { low: filterLow, high: filterHigh },
+    labels: { low: filterLowLabel, high: filterHighLabel },
+    min: FREQUENCIES.fmin,
+    max: FREQUENCIES.fmax,
+    floor: RELIEF_DEFAULTS.floor,
+    band,
+    onChange: changeBand,
+  });
+
   try {
     viewer = await import('./lib/viewer.js');
     viewer.mount(viewerHost);
@@ -402,8 +451,13 @@ if (navigator.mediaDevices && navigator.mediaDevices.addEventListener) {
 }
 
 // A page restored from the back/forward cache has no live audio anymore.
-window.addEventListener('pagehide', () => {
+window.addEventListener('pagehide', (event) => {
   release();
+
+  if (!event.persisted && plot) {
+    plot.destroy();
+    plot = null;
+  }
 });
 
 window.addEventListener('pageshow', (event) => {

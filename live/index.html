@@ -20,6 +20,22 @@
 <body>
 <main class="live">
   <div id="viewer" class="live-viewer" role="img" aria-keyshortcuts="T R A C" aria-label="Live input relief: a ring whose ridges rise with the sound picked up from the selected source"></div>
+  <section class="live-filter" aria-label="Frequency band"
+           title="Drag the edges to zoom the ring into a band. Double-click to reset.">
+    <div id="filter-plot" class="live-filter-plot">
+      <canvas id="filter-canvas"></canvas>
+      <div id="filter-low" class="filter-handle" role="slider" tabindex="0"
+           aria-label="Band start" aria-valuemin="50" aria-valuemax="20000"
+           aria-valuenow="50" aria-valuetext="50 Hz"></div>
+      <div id="filter-high" class="filter-handle" role="slider" tabindex="0"
+           aria-label="Band end" aria-valuemin="50" aria-valuemax="20000"
+           aria-valuenow="20000" aria-valuetext="20 kHz"></div>
+    </div>
+    <p class="live-filter-readout">
+      <span id="filter-low-label">50 Hz</span>
+      <span id="filter-high-label">20 kHz</span>
+    </p>
+  </section>
   <div class="live-controls">
     <select id="live-source" class="live-select" aria-label="Audio source">
       <option value="default">Default microphone</option>

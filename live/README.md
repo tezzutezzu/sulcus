@@ -46,6 +46,23 @@ file directly from disk (`file://`) will not work.
 - Long tones show as a single crisp ridge; dense material fills the surface.
   Time is smoothed slightly, frequency is not, so individual tones stay legible.
 
+### Frequency band
+
+The panel in the bottom-left draws the current spectrum across the full
+50 Hz – 20 kHz range and shades it outside the selected band. The two edges are
+draggable: the band then becomes the analysis range, so the ring zooms into it —
+its inner radius is the start frequency and its rim is the end one.
+
+Drag either edge, or press anywhere on the plot to take the nearer edge, and
+release to stop. The edges can be tabbed to and moved with the arrow keys
+(±5 %), Page Up/Down (±20 %), and Home/End. They never cross and stay at least a
+×1.2 span apart. Double-click the plot to return to the full range.
+
+Changing the band clears the rolling history: stored columns are dB values per
+row and mean nothing under a different row-to-frequency mapping, so the ring
+starts flat and refills with incoming audio. The band is not remembered between
+visits.
+
 ## Running locally
 
 ```bash
@@ -62,11 +79,12 @@ network access the first time.
 
 | File | Purpose |
 | --- | --- |
-| `index.html` | The one page: viewer, source, Start/Stop, length |
+| `index.html` | The one page: viewer, band filter, source, Start/Stop, length |
 | `app.js` | Capture lifecycle, 30 fps analysis tick, in-place mesh updates |
-| `style.css` | Full-bleed layout and the three controls |
+| `style.css` | Full-bleed layout, the controls and the band panel |
 | `lib/relief.js` | Ring shape: topology, heights, shared with the generator |
 | `lib/spectrum.js` | FFT-bin to log-frequency mapping and rolling history |
+| `lib/band-plot.js` | Band panel: spectrum curve, edge dragging, keyboard |
 | `lib/audio-input.js` | Source enumeration, capture, errors, saved choice |
 | `lib/viewer.js` | Three.js scene, camera views, in-place mesh updates |
 

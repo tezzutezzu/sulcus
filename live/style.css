@@ -50,6 +50,93 @@ select:focus-visible {
   display: block;
 }
 
+/* The band filter sits in the bottom-left corner, clear of the centred controls. */
+.live-filter {
+  position: fixed;
+  left: clamp(16px, 3vw, 32px);
+  bottom: clamp(16px, 3vw, 32px);
+  z-index: 2;
+  width: min(300px, calc(100vw - 32px));
+  margin: 0;
+  padding: 10px 12px 6px;
+  border: 1px solid #2c3134;
+  border-radius: 12px;
+  background: rgba(17, 19, 21, 0.82);
+}
+
+.live-filter-plot {
+  position: relative;
+  height: 74px;
+  touch-action: none;
+}
+
+.live-filter-plot canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* One slider per band edge: a thin line under a knob, wide enough to grab. */
+.filter-handle {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 22px;
+  margin-left: -11px;
+  cursor: ew-resize;
+  touch-action: none;
+}
+
+.filter-handle::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 1px;
+  margin-left: -0.5px;
+  background: #ff8457;
+}
+
+.filter-handle::after {
+  content: '';
+  position: absolute;
+  top: 1px;
+  left: 50%;
+  width: 9px;
+  height: 9px;
+  margin-left: -4.5px;
+  border-radius: 50%;
+  background: #ff8457;
+  box-shadow: 0 0 0 2px rgba(17, 19, 21, 0.9);
+}
+
+.filter-handle:focus-visible {
+  outline: 2px solid #ff8457;
+  outline-offset: 1px;
+  border-radius: 4px;
+}
+
+.live-filter-readout {
+  display: flex;
+  justify-content: space-between;
+  margin: 5px 0 0;
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  color: #9aa1a1;
+  font-variant-numeric: tabular-nums;
+}
+
+/* On narrow screens the centred controls take the bottom, so sit above them. */
+@media (max-width: 720px) {
+  .live-filter {
+    left: 12px;
+    right: 12px;
+    width: auto;
+    bottom: 104px;
+  }
+}
+
 .live-controls {
   position: fixed;
   left: 50%;

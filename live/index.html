@@ -41,14 +41,11 @@
       <option value="default">Default microphone</option>
     </select>
     <button id="live-toggle" class="play" type="button" aria-pressed="false">Start</button>
-    <div class="live-length" role="group" aria-label="History length">
-      <button id="live-length-less" class="length-step" type="button" aria-label="Shorter history">−</button>
-      <span class="length-field">
-        <input id="live-length" type="number" min="1" max="600" step="1"
-               inputmode="numeric" value="15" aria-label="History length in seconds">
-        <span class="length-unit" aria-hidden="true">s</span>
-      </span>
-      <button id="live-length-more" class="length-step" type="button" aria-label="Longer history">+</button>
+    <div class="live-length">
+      <input id="live-length" type="range" min="1" max="600" step="1" value="15"
+             aria-label="History length" aria-valuetext="15 seconds">
+      <output id="live-length-value" class="length-value" for="live-length"
+              aria-hidden="true">15 s</output>
     </div>
   </div>
   <p id="live-status" class="sr-only" role="status" aria-live="polite">Press Start to visualise the input. T top view, R reset, A auto-orbit, C log the camera.</p>

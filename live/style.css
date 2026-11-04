@@ -188,12 +188,13 @@ select:focus-visible {
   cursor: wait;
 }
 
-/* Seconds field: a pill matching the selects, with a stepper either side. */
+/* History length: a slider pill matching the selects, with a live readout. */
 .live-length {
   display: flex;
   align-items: center;
-  gap: 2px;
-  padding: 4px 6px;
+  gap: 10px;
+  height: 40px;
+  padding: 0 14px 0 12px;
   font-size: 12px;
   color: #e3e1dc;
   background: #1b1e20;
@@ -203,52 +204,59 @@ select:focus-visible {
 
 .live-length:hover { border-color: #555b5b; }
 
-.length-field {
-  display: flex;
-  align-items: baseline;
-  gap: 2px;
-  padding: 0 2px;
-}
-
-.length-field input {
-  width: 4.5ch;
-  padding: 0;
-  font: inherit;
-  color: inherit;
-  text-align: right;
-  background: none;
-  border: 0;
-  appearance: textfield;
-  -moz-appearance: textfield;
-}
-
-.length-field input::-webkit-outer-spin-button,
-.length-field input::-webkit-inner-spin-button {
-  -webkit-appearance: none;
+.live-length input[type='range'] {
+  width: clamp(96px, 18vw, 150px);
+  height: 18px;
   margin: 0;
+  background: none;
+  appearance: none;
+  -webkit-appearance: none;
+  cursor: pointer;
 }
 
-.length-field input:focus-visible {
-  outline: 2px solid #ff8457;
-  outline-offset: 2px;
-  border-radius: 4px;
+.live-length input[type='range']::-webkit-slider-runnable-track {
+  height: 4px;
+  border-radius: 2px;
+  background: #3a3f41;
 }
 
-.length-unit { color: #9aa1a1; }
+.live-length input[type='range']::-moz-range-track {
+  height: 4px;
+  border-radius: 2px;
+  background: #3a3f41;
+}
 
-.length-step {
-  width: 30px;
-  height: 30px;
-  padding: 0;
-  font-size: 16px;
-  line-height: 1;
-  color: #e3e1dc;
-  background: #262b2d;
+.live-length input[type='range']::-webkit-slider-thumb {
+  width: 14px;
+  height: 14px;
+  margin-top: -5px;
   border: 0;
   border-radius: 50%;
+  background: #ff8457;
+  appearance: none;
+  -webkit-appearance: none;
 }
 
-.length-step:hover { background: #333a3c; }
+.live-length input[type='range']::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  border: 0;
+  border-radius: 50%;
+  background: #ff8457;
+}
+
+.live-length input[type='range']:focus-visible {
+  outline: 2px solid #ff8457;
+  outline-offset: 4px;
+  border-radius: 10px;
+}
+
+.length-value {
+  min-width: 4.5ch;
+  text-align: right;
+  color: #9aa1a1;
+  font-variant-numeric: tabular-nums;
+}
 
 .sr-only {
   position: absolute;

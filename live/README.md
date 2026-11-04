@@ -16,7 +16,7 @@ Open the page, pick a source, press **Start**. Press **Stop** when you are done.
 | --- | --- |
 | Source | Default microphone, a named audio input, or **System / tab audio** |
 | Start / Stop | Opens and closes the capture |
-| Length | Seconds of rolling history, 1 to 600 (default 15); type a value and press Enter, or use − / + for one-second steps |
+| Length | Seconds of rolling history on a slider, 1 to 600 (default 15) |
 
 Shortcuts: `T` top view, `R` reset the camera, `A` toggle a slow auto-orbit, `C`
 print the current camera position to the console.
@@ -26,10 +26,10 @@ Your last source and length are remembered.
 
 ### Length
 
-The field holds the seconds of history the ring shows, from 1 to 600. Typing a
-value applies it on Enter or when the field loses focus, so nothing rebuilds
-while you type; the − / + buttons step by one second and apply at once. Out of
-range values are clamped to 1 and 600.
+The slider sets the seconds of history the ring shows, from 1 to 600. The
+readout follows the thumb while you drag, but the ring only rebuilds when you
+let go, so sweeping across the range never reallocates the mesh under the
+pointer. Arrow keys step by one second each and commit on the same short pause.
 
 Changing the length rebuilds the ring, which is instant at 15 s and takes
 noticeably longer toward 600 s: the mesh then has 51 × 18,000 vertices and about

@@ -37,8 +37,7 @@ const LEGACY_LENGTH_KEY = 'sound-form:live-length';
 const button = document.querySelector('#live-toggle');
 const sourceSelect = document.querySelector('#live-source');
 const lengthInput = document.querySelector('#live-length');
-const lengthLess = document.querySelector('#live-length-less');
-const lengthMore = document.querySelector('#live-length-more');
+const lengthValue = document.querySelector('#live-length-value');
 const status = document.querySelector('#live-status');
 const viewerHost = document.querySelector('#viewer');
 const filterCanvas = document.querySelector('#filter-canvas');
@@ -65,6 +64,7 @@ let context = null;
 let analyser = null;
 let bins = null;
 let timer = null;
+let lengthTimer = null;
 let releasing = false;
 let selection = readPreference();
 let active = null;
@@ -353,22 +353,7 @@ async function changeSource() {
 // Length
 // ---------------------------------------------------------------------------
 
-function changeLength() {
-  // An emptied field is a half-finished edit, not a request for the default.
-  if (lengthInput.value.trim() === '') {
-    showLength();
-    return;
-  }
-
-  adoptLength(lengthInput.valueAsNumber);
-}
-
-/** Steps the length by whole seconds; the buttons are explicit, so they apply. */
-function stepLength(delta) {
-  adoptLength(seconds + delta);
-}
-
-/** Shows the length in the field and rebuilds the ring when it really changed. */
+/** Adopts a length: persists it and rebuilds the ring when it really changed. */
 function adoptLength(next) {
   const clamped = clampLength(next);
   const unchanged = clamped === seconds;
@@ -383,8 +368,28 @@ function adoptLength(next) {
   status.textContent = `Showing the last ${seconds} seconds.`;
 }
 
+/** Reflects a length in the slider and its readout, without rebuilding. */
+function renderLength(value) {
+  const clamped = clampLength(value);
+  lengthInput.value = String(clamped);
+  lengthInput.setAttribute('aria-valuetext', `${clamped} seconds`);
+  lengthValue.textContent = `${clamped} s`;
+}
+
 function showLength() {
-  lengthInput.value = String(seconds);
+  renderLength(seconds);
+}
+
+/**
+ * Commits the slider after a pause: a release is one step, while a held arrow
+ * key repeats and would otherwise rebuild the ring on every repeat.
+ */
+function scheduleLength() {
+  clearTimeout(lengthTimer);
+  lengthTimer = setTimeout(() => {
+    lengthTimer = null;
+    adoptLength(lengthInput.valueAsNumber);
+  }, 120);
 }
 
 // ---------------------------------------------------------------------------
@@ -474,9 +479,10 @@ button.addEventListener('click', () => {
 });
 
 sourceSelect.addEventListener('change', changeSource);
-lengthInput.addEventListener('change', changeLength);
-lengthLess.addEventListener('click', () => stepLength(-1));
-lengthMore.addEventListener('click', () => stepLength(1));
+// The readout follows the thumb; the ring waits for the release, so dragging
+// across 600 seconds does not rebuild the mesh under the pointer.
+lengthInput.addEventListener('input', () => renderLength(lengthInput.valueAsNumber));
+lengthInput.addEventListener('change', scheduleLength);
 document.addEventListener('keydown', handleShortcut);
 
 if (navigator.mediaDevices && navigator.mediaDevices.addEventListener) {
